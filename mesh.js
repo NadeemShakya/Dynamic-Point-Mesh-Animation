@@ -12,6 +12,13 @@ let variables = {
     particlesRadius : 3,
     optimalLength : 180,
 }
+
+// mouse pointer object
+let mouse = {
+    x: 0,
+    y: 0
+}
+
 // function to generate random numbers between a min and max value.
 let randomNumbers = (max, min) => Math.floor(Math.random() * (max - min) + min);
 // function to calculate distance between two points.
@@ -63,7 +70,9 @@ let initParticles = () => {
 let linker = (own, others) => {
     for(let i = 0; i < others.length; i++) {
         let distance = calculateDistance(own.x, own.y, others[i].x, others[i].y);
+        let mouse_distance = calculateDistance(mouse.x, mouse.y, others[i].x, others[i].y);
         let opacity = 1 - (distance / variables.optimalLength);
+        let mouse_opacity = 1 - (mouse_distance / variables.optimalLength);
         if(opacity > 0) {
             ctx.beginPath();
             ctx.moveTo(own.x, own.y);
@@ -71,9 +80,24 @@ let linker = (own, others) => {
             ctx.lineWidth = 0.8;
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
             ctx.stroke();
+            // Connect line with mouse position
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+            ctx.lineTo(others[i].x, others[i].y);
+            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${mouse_opacity})`;
+            ctx.stroke();
         }
     }   
 }
+
+// get mouse x, y position
+let mouseEvent = (event) => {
+    mouse.x = event.pageX;
+    mouse.y = event.pageY;
+}
+
+
 // animation function.
 let draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -83,6 +107,10 @@ let draw = () => {
     }
     requestAnimationFrame(draw);
 }
+
+// mouse move listener
+document.addEventListener('mousemove', mouseEvent);
+
 // call the functions.
 initParticles();
 draw();
